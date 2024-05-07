@@ -193,20 +193,17 @@ def get_recons_loss(
     score = (zero_abl_loss - recons_loss) / div_val
 
     # KL divergence
-    model_logits = model_outs.logits  # [batch, pos, d_vocab]
-    model_logprobs = torch.nn.functional.log_softmax(model_logits, dim=-1)
-    recons_logits = recons_outs.logits
-    recons_logprobs = torch.nn.functional.log_softmax(recons_logits, dim=-1)
-    # Note: PyTorch KL is backwards compared to the mathematical definition
-    # target distribution comes second, see
-    # https://pytorch.org/docs/stable/generated/torch.nn.functional.kl_div.html
+    recons_logprobs = torch.nn.functional.log_softmax(recons_outs.logits, dim=-1).flatten(0, 1)
+    del recons_outs
+    model_logprobs = torch.nn.functional.log_softmax(model_outs.logits, dim=-1).flatten(0, 1)
+    del model_outs
+
     d_kl = torch.nn.functional.kl_div(
         recons_logprobs,
         model_logprobs,
         reduction="batchmean",
         log_target=True,  # for numerics
     )
-
     return score, loss, recons_loss, zero_abl_loss, d_kl
 
 
