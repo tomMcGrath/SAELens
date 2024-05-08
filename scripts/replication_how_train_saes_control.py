@@ -57,7 +57,7 @@ for l1_coefficient in [2, 5, 10]:
         # When we do a proper test
         # training_tokens= 820_000_000, # 200k steps * 4096 batch size ~ 820M tokens (doable overnight on an A100)
         # For now.
-        use_cached_activations=True,
+        use_cached_activations=False,
         cached_activations_path="/home/paperspace/shared_volumes/activations_volume_1/gelu-1l",
         training_tokens=total_training_tokens,  # For initial testing I think this is a good number.
         train_batch_size=4096,
@@ -99,8 +99,8 @@ for l1_coefficient in [2, 5, 10]:
         dead_feature_window=1000,
         dead_feature_threshold=1e-4,
         # WANDB
-        log_to_wandb=log_to_wandb,  # always use wandb unless you are just testing code.
-        wandb_project="how_we_train_SAEs_replication_1",
+        log_to_wandb=True,  # always use wandb unless you are just testing code.
+        wandb_project="compilation-test",
         wandb_log_frequency=50,
         eval_every_n_wandb_logs=10,
         # Misc
@@ -109,6 +109,7 @@ for l1_coefficient in [2, 5, 10]:
         n_checkpoints=0,
         checkpoint_path="checkpoints",
         dtype=torch.float32,
+        autocast=True,
     )
 
     # look at the next cell to see some instruction for what to do while this is running.

@@ -271,9 +271,10 @@ def train_sae_group_on_language_model(
         # signal handlers (if preempted)
         signal.signal(signal.SIGINT, interrupt_callback)
         signal.signal(signal.SIGTERM, interrupt_callback)
+        activation_store.model = activation_store.model.to('cuda:0')
 
         while training_run_state.n_training_tokens < total_training_tokens:
-            # Do a training step.
+            # Do a training step.            
             layer_acts = activation_store.next_batch()
             training_run_state.n_training_tokens += batch_size
 

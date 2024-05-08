@@ -1,6 +1,7 @@
 import traceback
 from typing import Any, cast
 
+import torch
 import wandb
 
 from sae_lens.training.config import LanguageModelSAERunnerConfig
@@ -71,9 +72,18 @@ def language_model_sae_runner(cfg: LanguageModelSAERunnerConfig):
             id=cfg.wandb_id,
         )
 
+    # Compile LLM
+    model = torch.compile(model)  # pyright: ignore [reportPossiblyUnboundVariable]
+
+    # Compile SAE
+    for k in sparse_autoencoder.autoencoders.keys():  # pyright: ignore [reportPossiblyUnboundVariable]
+        sae = sparse_autoencoder.autoencoders[k]  # pyright: ignore [reportPossiblyUnboundVariable]
+        sae = torch.compile(sae)  # pyright: ignore [reportPossiblyUnboundVariable]
+        sparse_autoencoder.autoencoders[k] = sae  # type: ignore # pyright: ignore [reportPossiblyUnboundVariable]
+
     # train SAE
     sparse_autoencoder = train_sae_group_on_language_model(
-        model=model,  # pyright: ignore [reportPossiblyUnboundVariable]
+        model=model,  # pyright: ignore [reportPossiblyUnboundVariable] # type: ignore
         sae_group=sparse_autoencoder,  # pyright: ignore [reportPossiblyUnboundVariable]
         activation_store=activations_loader,  # pyright: ignore [reportPossiblyUnboundVariable]
         train_contexts=train_contexts,

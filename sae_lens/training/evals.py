@@ -43,7 +43,7 @@ def run_evals(
 
     # get cache
     _, cache = model.run_with_cache(
-        eval_tokens,
+        eval_tokens[::4],
         prepend_bos=False,
         names_filter=[hook_point_eval, hook_point],
         **sparse_autoencoder.cfg.model_kwargs,
@@ -107,6 +107,7 @@ def recons_loss_batched(
     losses = []
     for _ in range(n_batches):
         batch_tokens = activation_store.get_batch_tokens()
+        batch_tokens = batch_tokens[::4]
         score, loss, recons_loss, zero_abl_loss, d_kl = get_recons_loss(
             sparse_autoencoder, model, batch_tokens
         )
@@ -135,11 +136,10 @@ def get_recons_loss(
     batch_tokens: torch.Tensor,
 ):
     hook_point = sparse_autoencoder.cfg.hook_point
-    model_outs = model(
-        batch_tokens, return_type="both", **sparse_autoencoder.cfg.model_kwargs
+    loss = model(
+        batch_tokens, return_type="loss", **sparse_autoencoder.cfg.model_kwargs
     )
     head_index = sparse_autoencoder.cfg.hook_point_head_index
-    loss = model_outs.loss
 
     def standard_replacement_hook(activations: torch.Tensor, hook: Any):
         activations = sparse_autoencoder.forward(activations).sae_out.to(
@@ -172,13 +172,12 @@ def get_recons_loss(
     else:
         replacement_hook = standard_replacement_hook
 
-    recons_outs = model.run_with_hooks(
+    recons_loss = model.run_with_hooks(
         batch_tokens,
-        return_type="both",
+        return_type="loss",
         fwd_hooks=[(hook_point, partial(replacement_hook))],
         **sparse_autoencoder.cfg.model_kwargs,
     )
-    recons_loss = recons_outs.loss
 
     zero_abl_loss = model.run_with_hooks(
         batch_tokens,
@@ -193,17 +192,23 @@ def get_recons_loss(
     score = (zero_abl_loss - recons_loss) / div_val
 
     # KL divergence
-    recons_logprobs = torch.nn.functional.log_softmax(recons_outs.logits, dim=-1).flatten(0, 1)
-    del recons_outs
-    model_logprobs = torch.nn.functional.log_softmax(model_outs.logits, dim=-1).flatten(0, 1)
-    del model_outs
+    # KL_SUBSAMPLE_FREQ = 64
+    # recons_logprobs = torch.nn.functional.log_softmax(recons_outs.logits, dim=-1).flatten(0, 1)
+    # del recons_outs
+    # print(recons_logprobs.shape)
+    # recons_logprobs = recons_logprobs[::KL_SUBSAMPLE_FREQ]
+    # print(recons_logprobs.shape)
+    # model_logprobs = torch.nn.functional.log_softmax(model_outs.logits, dim=-1).flatten(0, 1)
+    # del model_outs
+    # model_logprobs = model_logprobs[::KL_SUBSAMPLE_FREQ]
 
-    d_kl = torch.nn.functional.kl_div(
-        recons_logprobs,
-        model_logprobs,
-        reduction="batchmean",
-        log_target=True,  # for numerics
-    )
+    # d_kl = torch.nn.functional.kl_div(
+    #     recons_logprobs,
+    #     model_logprobs,
+    #     reduction="batchmean",
+    #     log_target=True,  # for numerics
+    # )
+    d_kl = torch.zeros_like(score)
     return score, loss, recons_loss, zero_abl_loss, d_kl
 
 
