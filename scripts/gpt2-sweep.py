@@ -45,10 +45,10 @@ for l1_coefficient in [2, 5, 10]:
         ## MLP Layer 0 ##
         hook_point="blocks.3.hook_mlp_out",
         hook_point_layer=3,
-        d_in=512,
+        d_in=768,
         dataset_path="NeelNanda/c4-tokenized-2b",
         streaming=False,
-        context_size=1024,
+        context_size=512,
         is_dataset_tokenized=True,
         prepend_bos=True,
         # How big do we want our SAE to be?
