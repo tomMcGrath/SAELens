@@ -1,6 +1,7 @@
 """
 Took the LR scheduler from my previous work: https://github.com/jbloomAus/DecisionTransformerInterpretability/blob/ee55df35cdb92e81d689c72fb9dd5a7252893363/src/decision_transformer/utils.py#L425
 """
+
 from typing import Any
 
 import torch.optim as optim
@@ -146,13 +147,13 @@ class L1Scheduler:
     def state_dict(self):
         """State dict for serializing as part of an SAETrainContext."""
         return {
-            'type': self.type,
-            'l1_warmup_steps': self.l1_warmup_steps,
-            'total_steps': self.total_steps,
-            'final_l1_value': self.final_l1_value,
-            'current_step': self.current_step,
+            "type": self.type,
+            "l1_warmup_steps": self.l1_warmup_steps,
+            "total_steps": self.total_steps,
+            "final_l1_value": self.final_l1_value,
+            "current_step": self.current_step,
         }
-    
+
     def load_state_dict(self, state_dict: dict[str, Any]):
         """Loads all state apart from attached SAE."""
         for k in state_dict:
