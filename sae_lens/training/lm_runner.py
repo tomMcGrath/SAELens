@@ -15,6 +15,7 @@ from sae_lens.training.train_sae_on_language_model import (
 
 def language_model_sae_runner(cfg: LanguageModelSAERunnerConfig):
     """ """
+    print('===== TESTING ======')
     training_run_state = None
     train_contexts = None
 

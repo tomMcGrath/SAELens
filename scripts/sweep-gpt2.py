@@ -20,7 +20,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 block = 6
 
-total_training_steps = 200_00
+total_training_steps = 200
 batch_size = 4096
 total_training_tokens = total_training_steps * batch_size
 print(f"Total Training Tokens: {total_training_tokens}")

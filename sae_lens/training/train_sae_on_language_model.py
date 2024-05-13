@@ -341,13 +341,13 @@ def train_sae_group_on_language_model(
                 checkpoint_thresholds
                 and training_run_state.n_training_tokens > checkpoint_thresholds[0]
             ):
-                _save_checkpoint(
-                    sae_group,
-                    activation_store=activation_store,
-                    train_contexts=train_contexts,
-                    training_run_state=training_run_state,
-                    checkpoint_name=training_run_state.n_training_tokens,
-                )
+                # _save_checkpoint(
+                #     sae_group,
+                #     activation_store=activation_store,
+                #     train_contexts=train_contexts,
+                #     training_run_state=training_run_state,
+                #     checkpoint_name=training_run_state.n_training_tokens,
+                # )
                 checkpoint_thresholds.pop(0)
 
             ###############
@@ -371,25 +371,27 @@ def train_sae_group_on_language_model(
 
     except (KeyboardInterrupt, InterruptedException):
         print("interrupted, saving progress")
-        checkpoint_name = training_run_state.n_training_tokens
-        _save_checkpoint(
-            sae_group,
-            activation_store=activation_store,
-            train_contexts=train_contexts,
-            training_run_state=training_run_state,
-            checkpoint_name=checkpoint_name,
-        )
+        # checkpoint_name = training_run_state.n_training_tokens
+        # _save_checkpoint(
+        #     sae_group,
+        #     activation_store=activation_store,
+        #     train_contexts=train_contexts,
+        #     training_run_state=training_run_state,
+        #     checkpoint_name=checkpoint_name,
+        # )
         print("done saving")
         raise
     # save final sae group to checkpoints folder
-    _save_checkpoint(
-        sae_group,
-        activation_store=activation_store,
-        train_contexts=train_contexts,
-        training_run_state=training_run_state,
-        checkpoint_name=f"final_{training_run_state.n_training_tokens}",
-        wandb_aliases=["final_model"],
-    )
+
+    # _save_checkpoint(
+    print('Not saving a checkpoint lol')
+    #     sae_group,
+    #     activation_store=activation_store,
+    #     train_contexts=train_contexts,
+    #     training_run_state=training_run_state,
+    #     checkpoint_name=f"final_{training_run_state.n_training_tokens}",
+    #     wandb_aliases=["final_model"],
+    # )
 
     log_feature_sparsities = {
         name: ctx.log_feature_sparsity for name, ctx in train_contexts.items()
